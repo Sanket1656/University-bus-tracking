@@ -1,0 +1,47 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+
+    <div class="container mx-auto py-10">
+        <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+            <h2 class="text-3xl font-bold mb-6 text-center">Driver Profile</h2>
+            
+            <div class="flex items-center space-x-6">
+                <div>
+                    {% if profile.profile_picture %}
+                        <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="w-32 h-32 rounded-full border-4 border-blue-500">
+                    {% else %}
+                        <div class="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center">
+                            <span class="text-gray-500">No Image</span>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <p class="text-xl"><strong>Full Name:</strong> {{ profile.user.full_name }}</p>
+                    <p class="text-lg"><strong>Username:</strong> {{ profile.user.username }}</p>
+                    <p class="text-lg"><strong>Role:</strong> {{ profile.user.role }}</p>
+                </div>
+            </div>
+            
+            <div class="mt-6 grid grid-cols-2 gap-4">
+                <div>
+                    <p class="text-lg"><strong>License Number:</strong> {{ profile.license_number| default:"--"}} </p>
+                </div>
+                <div>
+                    <p class="text-lg"><strong>Phone Number:</strong> {{ profile.phone_number | default:"--" }}</p>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-between">
+                <a href="{% url 'student:edit_driver_profile' %}" class="bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600">Edit Profile</a>
+                <a href="{% url 'control:logout' %}" class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    
+{% endblock %}

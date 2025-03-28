@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Login Page{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600">
+    <div class="bg-white p-8 rounded-2xl shadow-2x1 w-96 animate-fade-in">
+        <h2 class="text-3xl font-bold text-center mb-6">Login</h2>
+        {% if error %}
+            <p class="text-red-500 text-center mb-4">{{ error }}</p>
+        {% endif %}
+        
+        <form method="post" class="space-y-4 animate-slide-in">
+            {% csrf_token %}
+            
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Username:</label>
+                <input type="text" name="username" id="username" 
+                       class="mt-1 p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" 
+                       required>
+            </div>
+            
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password:</label>
+                <input type="password" name="password" id="password" 
+                       class="mt-1 p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400" 
+                       required>
+            </div>
+            
+            <button type="submit" 
+                    class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 transform hover:scale-105">
+                Login
+            </button>
+            
+            <p class="text-center text-sm text-gray-600">Already haven't an account? 
+                <a href="{% url 'control:signup' %}" class="text-indigo-500 hover:underline">Signup here</a>
+            </p>
+        </form>
+    </div>
+</div>
+
+<style>
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .animate-fade-in {
+        animation: fade-in 1s ease-out;
+    }
+
+    @keyframes slide-in {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    .animate-slide-in {
+        animation: slide-in 0.5s ease-out;
+    }
+</style>
+{% endblock %}

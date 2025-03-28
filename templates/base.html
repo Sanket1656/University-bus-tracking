@@ -1,0 +1,50 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}University Bus Tracker{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-100">
+
+<!-- 🟩 Navbar -->
+<header class="bg-blue-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-3xl font-bold">University Bus Tracker</h1>
+        <nav class="flex items-center space-x-6">
+            {% if user.is_authenticated %}
+                <a href="{% url 'student:home' %}" class="px-4">Home</a>
+                {% if user.role == 'student' %}
+                    <a href="{% url 'student:student_profile' %}" class="px-4">Profile</a>
+                {% elif user.role == 'driver' %}
+                    <a href="{% url 'student:driver_profile' %}" class="px-4">Profile</a>
+                {% endif %}
+                <a href="{% url 'student:bus_detail_view' %}" class="px-4">Bus Detail</a>
+                <a href="{% url 'control:logout' %}" class="px-4">Logout</a>
+            {% else %}
+                <a href="{% url 'control:signup' %}" class="px-4">Signup</a>
+                <a href="{% url 'control:login' %}" class="px-4">Login</a>
+            {% endif %}
+        </nav>
+    </div>
+</header>
+
+<!-- 🟩 Main Content -->
+<div class="container mx-auto p-6">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<!-- 🟩 Footer -->
+<footer class="bg-gray-800 text-white text-center p-4 mt-6">
+    <p>&copy; 2025 University Bus Tracker. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

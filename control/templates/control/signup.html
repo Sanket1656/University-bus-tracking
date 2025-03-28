@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Signup Page{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-400 to-purple-500">
+    <div class="max-w-2xl w-full bg-white p-10 rounded-3xl shadow-2xl">
+        <h2 class="text-3xl font-extrabold mb-6 text-center text-gray-800">
+            🚀 Create Your Account
+        </h2>
+        
+        <p class="text-center text-gray-600 mb-8">
+            Join us and start tracking your buses in real time!
+        </p>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            {% for field in form %}
+            <div>
+                <label class="block mb-2 font-semibold text-gray-700">
+                    {{ field.label }}
+                </label>
+                
+                {% if field.widget_type == 'textarea' %}
+                    <textarea 
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+                        rows="4"
+                        placeholder="Enter {{ field.label|lower }}"
+                    >{{ field.value }}</textarea>
+                {% else %}
+                    <div class="relative">
+                        {{ field }}
+                        {% if field.help_text %}
+                            <span class="absolute right-2 top-2 text-gray-400 cursor-pointer" title="{{ field.help_text }}">ℹ️</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                    
+                {% if field.errors %}
+                    <p class="text-red-500 text-sm mt-2">{{ field.errors.as_text }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <!-- Progress bar -->
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div id="progressBar" class="bg-purple-500 h-2.5 rounded-full transition-all" style="width: 0%;"></div>
+            </div>
+
+            <button 
+                type="submit" 
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300 transform hover:scale-105">
+                🚀 Create Account
+            </button>
+        </form>
+        
+        <p class="mt-8 text-center text-gray-700">
+            Already have an account? 
+            <a href="{% url 'control:login' %}" class="text-purple-600 hover:underline font-semibold">
+                Login here
+            </a>
+        </p>
+    </div>
+</div>
+
+<script>
+// Simple progress bar simulation
+const inputs = document.querySelectorAll('input, textarea');
+const progressBar = document.getElementById('progressBar');
+
+inputs.forEach(input => {
+    input.addEventListener('input', () => {
+        const filledFields = Array.from(inputs).filter(i => i.value.trim() !== '').length;
+        const progress = (filledFields / inputs.length) * 100;
+        progressBar.style.width = `${progress}%`;
+    });
+});
+</script>
+{% endblock %}

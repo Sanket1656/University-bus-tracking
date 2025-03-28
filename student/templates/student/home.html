@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Home{% endblock %}
+
+{% block content %}
+
+<h2 class="text-2xl font-semibold mb-4">Live Bus Tracking</h2>
+{% if user.is_authenticated and user.role == "driver" %}
+
+<div class="mt-6 text-center">
+    <button id="startBus" class="px-6 py-3 bg-green-500 text-white rounded-lg shadow-lg hover:bg-green-600">Start Bus</button>
+    <button id="stopBus" class="px-6 py-3 bg-red-500 text-white rounded-lg shadow-lg hover:bg-red-600">Stop Bus</button>
+</div>
+
+{% endif %}
+
+{% if not bus_detail %}
+<!-- Case 1: Bus detail form not filled -->
+<div class="p-6 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
+    <p class="font-bold">Complete Your Bus Form</p>
+    <p>You need to fill out your bus detail form to get bus tracking information.</p>
+    <a href="{% url 'student:edit_student_bus_detail' %}" class="mt-3 inline-block px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+        Fill Bus Form
+    </a>
+</div>
+
+{% elif bus_detail and not bus_assigned %}
+<!-- Case 2: Form filled, but no bus assigned -->
+<div class="p-6 bg-blue-100 border-l-4 border-blue-500 text-blue-700">
+    <p class="font-bold">Waiting for Bus Assignment</p>
+    <p>Your bus form is complete, but a bus hasn’t been assigned yet. Please check back later.</p>
+</div>
+
+
+
+
+
+{% else %}
+<!-- Case 3: Form filled, bus assigned -->
+<div id="map" style="height: 600px;"></div>
+
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+    const map = L.map('map').setView([21.233437, 72.803562], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    const busesData = JSON.parse('{{ buses_json|escapejs }}');
+    const stopsData = JSON.parse('{{ stops_json|escapejs }}');
+
+    let busMarkers = {};  // Store markers by bus ID
+
+    // Add buses to map
+    busesData.forEach(bus => {
+        const busIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/128/17639/17639365.png',
+            iconSize: [50, 50]
+        });
+
+        let busMarker = L.marker([bus.latitude, bus.longitude], { icon: busIcon })
+            .addTo(map)
+            .bindPopup(`<b>${bus.name}</b><br>Route: ${bus.route}`);
+
+        busMarkers[bus.id] = busMarker; // Store marker reference
+    });
+
+    // Add bus stops to map
+    stopsData.forEach(stop => {
+        const stopIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/128/684/684908.png',
+            iconSize: [40, 40]
+        });
+
+        L.marker([stop.latitude, stop.longitude], { icon: stopIcon })
+            .addTo(map)
+            .bindPopup(`<b>Bus Stop: ${stop.name}</b>`);
+    });
+
+    document.getElementById("startBus").addEventListener("click", function() {
+        fetch("/student/start_bus/")
+            .then(response => response.json())
+            .then(data => alert("Bus Tracking " + data.status));
+    });
+
+    document.getElementById("stopBus").addEventListener("click", function() {
+        fetch("/student/stop_bus/")
+            .then(response => response.json())
+            .then(data => alert("Bus Tracking " + data.status));
+    });
+
+
+
+
+    // WebSocket Connection
+    const socket = new WebSocket("ws://127.0.0.1:8000/ws/bus_tracking/");
+
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        updateBusMarker(data.bus_id, data.latitude, data.longitude);
+    };
+
+    function updateBusMarker(busId, latitude, longitude) {
+        if (busId in busMarkers) {
+            busMarkers[busId].setLatLng([latitude, longitude])
+                .bindPopup(`<b>Updated Bus</b><br>Lat: ${latitude}<br>Lng: ${longitude}`);
+        }
+    }
+
+    // API Polling Fallback (if WebSocket Fails)
+    function fetchBusLocations() {
+        fetch(`/tracker/get_bus_locations/`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(bus => { // FIXED: No `buses` key
+                    if (bus.id in busMarkers) {
+                        busMarkers[bus.id].setLatLng([bus.latitude, bus.longitude])
+                            .bindPopup(`<b>${bus.name}</b><br>Lat: ${bus.latitude}<br>Lng: ${bus.longitude}`);
+                    }
+                });
+            })
+            .catch(error => console.error("API Polling failed:", error));
+    }
+
+    // Set API polling fallback every 10 seconds
+    setInterval(fetchBusLocations, 1000);
+});
+
+</script>
+
+{% endif %}
+
+
+<div class="mt-6">
+    <h3 class="text-xl font-medium mb-4">Quick Access</h3>
+    <div class="grid grid-cols-2 gap-4">
+        <div class="p-6 bg-white shadow-lg rounded-lg hover:shadow-xl">
+            <h4 class="text-lg font-semibold mb-2">Buses</h4>
+            <p class="text-gray-600 mb-4">View and track all available buses in real-time.</p>
+            <a href="/tracker/all_buses" class="inline-block px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">View All Buses</a>
+        </div>
+        <div class="p-6 bg-white shadow-lg rounded-lg hover:shadow-xl">
+            <h4 class="text-lg font-semibold mb-2">Bus Stops</h4>
+            <p class="text-gray-600 mb-4">Check all bus stops and their locations.</p>
+            <a href="/tracker/stops/" class="inline-block px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">View All Stops</a>
+        </div>
+        <div class="p-6 bg-white shadow-lg rounded-lg hover:shadow-xl">
+            <h4 class="text-lg font-semibold mb-2">Routes</h4>
+            <p class="text-gray-600 mb-4">Explore the available routes and schedules.</p>
+            <a href="/tracker/routes/" class="inline-block px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">View Routes</a>
+        </div>
+        <div class="p-6 bg-white shadow-lg rounded-lg hover:shadow-xl">
+            <h4 class="text-lg font-semibold mb-2">Drivers</h4>
+            <p class="text-gray-600 mb-4">See driver details and assigned routes.</p>
+            <a href="/tracker/drivers/" class="inline-block px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">View Drivers</a>
+        </div>
+    </div>
+
+    <div class="mt-6 text-center">
+        <a href="/tracker/all_buses" class="px-6 py-3 bg-purple-500 text-white rounded-lg shadow-lg hover:bg-purple-600">More Details</a>
+    </div>
+</div>
+
+{% endblock %}

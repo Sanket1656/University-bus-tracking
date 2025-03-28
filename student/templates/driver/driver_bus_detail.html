@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Bus Details{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-10">
+    <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8">
+        <h2 class="text-3xl font-bold mb-6 text-center">Bus Details</h2>
+
+        {% if filled %}
+            <!-- Driver's Personal Bus Details -->
+            <div class="bg-blue-100 p-6 rounded-lg shadow-md">
+                <h3 class="text-2xl font-semibold mb-4">Your Bus Details</h3>
+                {% if bus_detail %}
+                    <div class="space-y-4">
+                        <p><strong>Name:</strong> {{ bus_detail.driver }}</p>
+                        <p><strong>Route Name:</strong> {{ bus_detail.route_select }}</p>
+                        <p><strong>Phone Number:</strong> {{ bus_detail.phone_number }}</p>
+                    </div>
+                {% else %}
+                    <p class="text-yellow-500">You haven’t added your personal bus details yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Admin Assigned Bus Section -->
+            <div class="bg-green-100 p-6 rounded-lg shadow-md mt-6">
+                <h3 class="text-2xl font-semibold mb-4">Assigned Bus & Route</h3>
+                {% if bus_assignment %}
+                    <p><strong>Bus Name:</strong> {{ bus_assignment.bus.name }}</p>
+                    <p><strong>Route:</strong> {{ bus_assignment.route.name }}</p>
+                    <p><strong>Stops:</strong></p>
+                    <ul class="list-disc ml-6">
+                        {% for stop in bus_assignment.bus_stops.all %}
+                            <li>{{ stop.name }} ({{ stop.location }})</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-yellow-500">Wait for the admin to assign your bus and route.</p>
+                {% endif %}
+            </div>
+
+            <!-- Button to toggle the form for editing -->
+            <form method="post" class="mt-6">
+                {% csrf_token %}
+                <a href="{% url 'student:edit_driver_bus_detail' %}" class="bg-yellow-500 text-white py-2 px-4 rounded-lg hover:bg-yellow-600">
+                    Edit Bus Details
+                </a>
+            </form>
+
+        {% else %}
+            <!-- Show form if no details exist -->
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for field in form %}
+                    <div>
+                        <label class="block text-lg font-medium text-gray-700 mb-2">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <p class="text-sm text-gray-500">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <p class="text-red-500 text-sm">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-green-500 text-white py-3 px-6 rounded-lg hover:bg-green-600">
+                        Submit
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
