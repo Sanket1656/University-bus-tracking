@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure--+uiwli-&2lxtz!(q#g1z^bwds-rh=d-%p-puck^vl*4ji^01n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-AALLOWED_HOSTS = ["railway.app, universitybustracking.com"]
+ALLOWED_HOSTS = ["web-production-2a7f4.up.railway.app"]  # Use your Railway domain
+
 
 
 # Application definition
@@ -140,7 +141,9 @@ USE_TZ = True
 
 
 
-STATIC_ROOT = BASE_DIR / "staticfiles"
+import os
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
 
 MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
@@ -155,4 +158,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+import os
+if os.getenv("RAILWAY_ENVIRONMENT"):
+    DATABASES["default"]["NAME"] = "/data/db.sqlite3"
 
