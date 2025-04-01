@@ -25,7 +25,12 @@ SECRET_KEY = 'django-insecure--+uiwli-&2lxtz!(q#g1z^bwds-rh=d-%p-puck^vl*4ji^01n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["university-bus-tracking.onrender.com"]  # Use your Railway domain
+ALLOWED_HOSTS = ["university-bus-tracking.onrender.com"]  # Use your Railway domain 
+
+CSRF_TRUSTED_ORIGINS = ['https://university-bus-tracking.onrender.com']
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 
 
