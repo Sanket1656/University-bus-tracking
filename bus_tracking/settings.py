@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure--+uiwli-&2lxtz!(q#g1z^bwds-rh=d-%p-puck^vl*4ji^01n
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["web-production-2a7f4.up.railway.app"]  # Use your Railway domain
+ALLOWED_HOSTS = ["university-bus-tracking.onrender.com"]  # Use your Railway domain
 
 
 
