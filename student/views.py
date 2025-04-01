@@ -85,8 +85,11 @@ def edit_student_profile_view(request):
 
 @login_required
 def edit_student_bus_detail_view(request):
-    profile = StudentBusDetail.objects.get(student_name=request.user)
-
+    try:
+        profile = StudentBusDetail.objects.get(student_name=request.user)
+    except StudentBusDetail.DoesNotExist:
+        profile = None
+        
     if request.method == 'POST':
         form =StudentBusDetailForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():

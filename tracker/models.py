@@ -1,6 +1,6 @@
 from django.db import models
 from control.models import CustomUser 
-
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -70,4 +70,16 @@ class BusAssignment(models.Model):
 
     def __str__(self):
         return f"{self.bus.name} - {self.route.name}"
+    
+def clean(self):
+        # Get all students that are already assigned to another bus
+        for student in self.students.all():
+            existing_assignments = BusAssignment.objects.exclude(id=self.id).filter(students=student)
+            if existing_assignments.exists():
+                raise ValidationError(f"Student {student.username} is already assigned to another bus.")
+    
+def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
     

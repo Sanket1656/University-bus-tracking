@@ -5,6 +5,7 @@ from .forms import CustomUserCreationForm
 
 def home(request):
     return render(request , 'control/home.html')
+from django.contrib.auth import login
 
 def signup_view(request):
     if request.method == 'POST':
@@ -13,10 +14,23 @@ def signup_view(request):
             user = form.save(commit=False)
             user.full_name = form.cleaned_data['full_name']
             user.save()
-            return redirect('control:dashboard')  # Redirect to login page after successful signup
+            
+            # Automatically log in the user
+            login(request, user)
+            
+            # Redirect based on user role
+            if user.role == 'student':  # Assuming role is stored in the user model
+                return redirect('student:home')
+            elif user.role == 'driver':
+                return redirect('student:home')
+            else:
+                return redirect('control:dashboard')  # Default fallback
+
     else:
         form = CustomUserCreationForm()
+    
     return render(request, 'control/signup.html', {'form': form})
+
 
 
 
